@@ -16,7 +16,7 @@ import com.word.spread.repository.WordDataRepository;
 import com.word.spread.service.WordDataService;
 
 @RestController
-@RequestMapping(path = "/words", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/words", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(originPatterns = "*")
 public class WordResource {
 
