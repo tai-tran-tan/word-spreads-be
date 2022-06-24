@@ -15,13 +15,14 @@ import com.word.spread.model.dto.WordData;
 import com.word.spread.repository.WordDataRepository;
 import com.word.spread.service.WordDataService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping(path = "/api/words", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(originPatterns = "*")
+@Slf4j
 public class WordResource {
 
-//	private static final Logger LOGGER = LoggerFactory.getLogger(WordResource.class);
-	
 	private WordDataService service;
 	private WordDataRepository repo;
 	
@@ -36,7 +37,14 @@ public class WordResource {
 	}
 
 	private WordData get(String word) {
-		return this.repo.findById(word).orElseGet(() -> service.getWordData(word));
+		return this.repo.findById(word).orElseGet(() -> getAndPersistWord(word));
+	}
+
+	private WordData getAndPersistWord(String word) {
+		log.info("Word is not existing in DB, fetching online then store...");
+		WordData data = service.getWordData(word);
+		repo.save(data);
+		return data;
 	}
 	
 	@GetMapping

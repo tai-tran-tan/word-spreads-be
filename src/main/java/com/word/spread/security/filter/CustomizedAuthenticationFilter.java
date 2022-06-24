@@ -1,10 +1,8 @@
-package com.word.spread.security;
+package com.word.spread.security.filter;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,19 +15,22 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.word.spread.model.User;
+import com.word.spread.service.JwtHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class CustomizedAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
-	public CustomizedAuthenticationFilter(AuthenticationManager authenticationManager) {
+	private final JwtHelper jwtHelper;
+	
+	public CustomizedAuthenticationFilter(AuthenticationManager authenticationManager, JwtHelper helper) {
 		super(authenticationManager);
+		this.jwtHelper = helper;
 	}
 
 	@Override
@@ -38,32 +39,11 @@ public class CustomizedAuthenticationFilter extends UsernamePasswordAuthenticati
 		
 		log.info("Authenticated! Creating tokens...");
 		
-		User user = (User) authResult.getPrincipal();
-		String userName = user.getUsername();
-		Algorithm algorithm = Algorithm.HMAC256("my-deep-dark-secret");
-		String access_token = JWT.create()
-			.withIssuer("word-spreads")
-			.withSubject(userName)
-			.withExpiresAt(createTokenExpiryDate(30 * 1000)) //30 secs
-			.withClaim("roles", authResult.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-			.sign(algorithm);
-
-		String refresh_token = JWT.create()
-				.withIssuer("word-spreads")
-				.withSubject(userName)
-				.withExpiresAt(createTokenExpiryDate(5 * 60 * 1000)) //5 mins
-				.sign(algorithm);
+		String userName = authResult.getName();
+		Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+		Map<String, String> tokens = jwtHelper.createTokens(userName, authorities);
 
 		response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-		
-		Map<String, String> tokens = new HashMap<>();
-		tokens.put("access_token", access_token);
-		tokens.put("refresh_token", refresh_token);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 	}
-
-	private Date createTokenExpiryDate(long period) {
-		return new Date(System.currentTimeMillis() + period);
-	}
-	
 }

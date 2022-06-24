@@ -15,6 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
+import com.word.spread.security.filter.CustomizedAuthenticationFilter;
+import com.word.spread.security.filter.JwtRequestFilter;
+import com.word.spread.service.JwtHelper;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -24,10 +28,11 @@ public class ApplicationSecurityConfig {
 
 	private final UserDetailsService userService;
 	private final AuthenticationConfiguration configuration;
+	private final JwtHelper jwtHelper;
 	
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		AbstractAuthenticationProcessingFilter filter = new CustomizedAuthenticationFilter(authenticationManager());
+		AbstractAuthenticationProcessingFilter filter = new CustomizedAuthenticationFilter(authenticationManager(), jwtHelper);
 		filter.setFilterProcessesUrl("/api/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -36,6 +41,7 @@ public class ApplicationSecurityConfig {
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/words").permitAll();
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(filter);
+		http.addFilterBefore(new JwtRequestFilter(jwtHelper), CustomizedAuthenticationFilter.class);
 		
 		return http.build();
 	}
