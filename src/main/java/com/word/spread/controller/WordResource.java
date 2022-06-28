@@ -1,8 +1,12 @@
 package com.word.spread.controller;
 
+import java.io.Serializable;
+import java.util.List;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,11 +19,12 @@ import com.word.spread.model.dto.WordData;
 import com.word.spread.repository.WordDataRepository;
 import com.word.spread.service.WordDataService;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping(path = "/api/words", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(originPatterns = "*")
 @Slf4j
 public class WordResource {
 
@@ -48,14 +53,22 @@ public class WordResource {
 	}
 	
 	@GetMapping
-	public Iterable<WordData> getRecent() {
-		return this.repo.findAll();
+	public List<WordData> getRecent() {
+		PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "updatedDate"));
+		return this.repo.findAll(pageRequest);
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void addWord(@RequestBody String word) {
-		WordData data = get(word);
+	public void addWord(@RequestBody ShareForm form) {
+		WordData data = get(form.getWord());
 		this.repo.save(data);
+	}
+	
+	@Data
+	@NoArgsConstructor
+	public static class ShareForm implements Serializable{
+		private static final long serialVersionUID = 1L;
+		private String word;
 	}
 }

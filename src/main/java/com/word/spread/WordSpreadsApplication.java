@@ -17,5 +17,5 @@ public class WordSpreadsApplication {
 	PasswordEncoder encoder() {
 		return new BCryptPasswordEncoder();
 	}
-
+	
 }

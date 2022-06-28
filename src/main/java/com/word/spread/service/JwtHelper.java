@@ -29,14 +29,14 @@ public class JwtHelper {
 		String access_token = JWT.create()
 			.withIssuer("word-spreads")
 			.withSubject(userName)
-			.withExpiresAt(createTokenExpiryDate(120 * 1000)) //2 mins
+			.withExpiresAt(createTokenExpiryDate(1 * 60 * 1000)) //10 mins
 			.withClaim("roles", authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 			.sign(ALGORITHM);
 
 		String refresh_token = JWT.create()
 				.withIssuer("word-spreads")
 				.withSubject(userName)
-				.withExpiresAt(createTokenExpiryDate(5 * 60 * 1000)) //5 mins
+				.withExpiresAt(createTokenExpiryDate(30 * 60 * 1000)) //30 mins
 				.sign(ALGORITHM);
 
 		Map<String, String> tokens = new HashMap<>();
