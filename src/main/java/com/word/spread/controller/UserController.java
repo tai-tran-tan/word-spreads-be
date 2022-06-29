@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @RequiredArgsConstructor
-public class UserResource {
+public class UserController {
 	
 	private final PasswordEncoder encoder;
 	private final UserRepo userRepo;
@@ -46,7 +46,6 @@ public class UserResource {
 	}
 	
 	@GetMapping
-	@ResponseStatus(code = HttpStatus.OK)
 	public User getUser(HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		if (principal == null) {
@@ -55,7 +54,7 @@ public class UserResource {
 		}
 		return this.userRepo.findByUsername(principal.getName());
 	}
-
+	
 	@Data
 	public static class UserInfoForm {
 		private String username;

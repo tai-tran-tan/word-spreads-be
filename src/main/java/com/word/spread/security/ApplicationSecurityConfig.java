@@ -36,16 +36,19 @@ public class ApplicationSecurityConfig {
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		CustomizedAuthenticationFilter filter = new CustomizedAuthenticationFilter(authenticationManager(), jwtHelper);
-		filter.setFilterProcessesUrl("/api/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/login").permitAll();
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/users").permitAll();
 		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/words").permitAll();
+		
+		CustomizedAuthenticationFilter loginFilter = new CustomizedAuthenticationFilter(authenticationManager(), jwtHelper);
+		loginFilter.setFilterProcessesUrl("/api/login");
 		http.authorizeRequests().anyRequest().authenticated();
-		http.addFilter(filter);
-		http.addFilterBefore(new JwtRequestFilter(jwtHelper), CustomizedAuthenticationFilter.class);
+		http.addFilter(loginFilter);
+
+		http.addFilterBefore(new JwtRequestFilter(jwtHelper, userService), CustomizedAuthenticationFilter.class);
+		
 		http.cors();
 		return http.build();
 	}
@@ -54,7 +57,7 @@ public class ApplicationSecurityConfig {
 	AuthenticationManager authenticationManager() throws Exception {
 		return configuration.getAuthenticationManager();
 	}
-
+	
 	//temporary disable cors
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {

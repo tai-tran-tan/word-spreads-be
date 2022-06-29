@@ -26,12 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping(path = "/api/words", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
-public class WordResource {
+public class WordController {
 
 	private WordDataService service;
 	private WordDataRepository repo;
 	
-	public WordResource(WordDataService svc, WordDataRepository repo) {
+	public WordController(WordDataService svc, WordDataRepository repo) {
 		this.service = svc;
 		this.repo = repo;
 	}
