@@ -30,7 +30,7 @@ public class JwtHelper {
 	public Map<String, String> createTokens(String userName, Collection<? extends GrantedAuthority> authorities) {
 		List<String> roles = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
-		String accessToken = createToken(userName, roles, 10 * 60 * 1000);
+		String accessToken = createToken(userName, roles, 30 * 1000);
 		String refreshToken = createToken(userName, Arrays.asList("USER"), 30 * 60 * 1000);
 
 		return createTokens(accessToken, refreshToken);

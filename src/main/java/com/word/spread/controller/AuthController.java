@@ -2,16 +2,17 @@ package com.word.spread.controller;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.word.spread.service.JwtHelper;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,9 +22,15 @@ public class AuthController {
 
 	private final JwtHelper jwtHelper;
 	
-	@GetMapping("refresh")
-	public Map<String, String> refresh(HttpServletRequest request) {
-		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-		return jwtHelper.refreshToken(header);
+	@PostMapping("refresh")
+	@ResponseStatus(HttpStatus.OK)
+	public Map<String, String> refresh(@RequestBody Token token) {
+		String str = token.getRefreshToken();
+		return jwtHelper.refreshToken(str);
+	}
+	
+	@Data
+	public static class Token {
+		private String refreshToken;
 	}
 }
