@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,26 +16,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.word.spread.model.User;
 import com.word.spread.model.dto.WordData;
 import com.word.spread.repository.WordDataRepository;
 import com.word.spread.service.WordDataService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping(path = "/api/words", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
+@RequiredArgsConstructor
 public class WordController {
 
-	private WordDataService service;
-	private WordDataRepository repo;
-	
-	public WordController(WordDataService svc, WordDataRepository repo) {
-		this.service = svc;
-		this.repo = repo;
-	}
+	private final WordDataService service;
+	private final WordDataRepository repo;
 	
 	@GetMapping(path = "/{word}")
 	public WordData getWordData(@PathVariable(name = "word") String word) {
@@ -60,8 +59,9 @@ public class WordController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void addWord(@RequestBody ShareForm form) {
+	public void addWord(@RequestBody ShareForm form, Authentication auth) {
 		WordData data = get(form.getWord());
+		data.getSharedUser().add((User) auth.getDetails());
 		this.repo.save(data);
 	}
 	

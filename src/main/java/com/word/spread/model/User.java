@@ -3,16 +3,21 @@ package com.word.spread.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.word.spread.model.dto.WordData;
 
 import lombok.NoArgsConstructor;
 
@@ -25,7 +30,11 @@ public class User implements UserDetails {
 
 	@Id
 	private String username;
+	@JsonIgnore
 	private String password;
+	
+	@ManyToMany(mappedBy = "sharedUser")
+	private Set<WordData> sharedWord;
 
 	public User(String name) {
 		this.username = name;
