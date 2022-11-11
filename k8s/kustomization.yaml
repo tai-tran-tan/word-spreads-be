@@ -1,0 +1,8 @@
+kind: Kustomization
+namespace: word-spreads
+resources:
+  - ./namespace.yaml
+  - ./postgres.yaml
+  - ./backend-deployment.yaml
+  - ./backend-service.yaml
+  - ./gateway.yaml

@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: word-spreads-backend
+  annotations:
+    description: Spring boot backend
+  labels:
+    k8s-app: word-spreads-backend
+    app: word-spreads-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: word-spreads-backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        description: Spring boot backend
+      labels:
+        k8s-app: word-spreads-backend
+        app: word-spreads-backend
+      name: word-spreads-backend
+    spec:
+      containers:
+        - name: word-spreads-backend
+          image: word-spreads-be:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_profiles_active
+              value: k8s
+      restartPolicy: Always
