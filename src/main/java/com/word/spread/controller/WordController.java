@@ -2,7 +2,9 @@ package com.word.spread.controller;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -75,7 +77,9 @@ public class WordController {
 	
 	private WordData share(String word, User user) {
 		WordData data = get(word);
-		data.getSharedUser().add(user);
+		Set<User> users = SetUtils.hashSet(user);
+		users.addAll(data.getSharedUser());
+		data.setSharedUser(users);
 		return this.repo.save(data);
 	}
 

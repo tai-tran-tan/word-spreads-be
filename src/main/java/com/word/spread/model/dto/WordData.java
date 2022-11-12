@@ -2,6 +2,7 @@ package com.word.spread.model.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +63,7 @@ public class WordData implements Serializable {
 	@JoinTable(name = "share_user", 
 		joinColumns = @JoinColumn(name = "username"), 
 		inverseJoinColumns = @JoinColumn(name = "word"))
-	private Set<User> sharedUser;
+	private Set<User> sharedUser = new HashSet<>();
 	
 	public WordData(String word) {
 		this.word = word;
