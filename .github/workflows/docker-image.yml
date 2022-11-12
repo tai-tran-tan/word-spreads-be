@@ -25,6 +25,10 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    -
+      name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%d-%m-%yT%H_%M')"
     - 
       name: Build and push
       uses: docker/build-push-action@v3
@@ -32,4 +36,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:${{ date +%d-%m-%yT%H_%M }}
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:${{ steps.date.outputs.date }}
