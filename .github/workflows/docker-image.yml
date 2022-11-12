@@ -32,4 +32,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:$(date +%s)
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:{{ date +%d-%m-%yT%H_%M }}
