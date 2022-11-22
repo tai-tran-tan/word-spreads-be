@@ -59,7 +59,7 @@ public class WordData implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedDate;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.PERSIST)
 	@JoinTable(name = "share_user", 
 		joinColumns = @JoinColumn(name = "username"), 
 		inverseJoinColumns = @JoinColumn(name = "word"))

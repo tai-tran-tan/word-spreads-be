@@ -2,9 +2,13 @@ package com.word.spread.controller;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.SetUtils;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,12 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.word.spread.model.Role;
 import com.word.spread.model.User;
 import com.word.spread.model.dto.WordData;
 import com.word.spread.repository.WordDataRepository;
@@ -57,12 +61,12 @@ public class WordController {
 		share(word, user);
 	}
 
-	@PutMapping(path = "/{word}")
-	@ResponseStatus(HttpStatus.OK)
-	public WordData coShare(@PathVariable(name = "word") String word, Authentication auth) {
-		User user = extractUserDetails(auth);
-		return share(word, user);
-	}
+//	@PutMapping(path = "/{word}")
+//	@ResponseStatus(HttpStatus.OK)
+//	public WordData coShare(@PathVariable(name = "word") String word, Authentication auth) {
+//		User user = extractUserDetails(auth);
+//		return share(word, user);
+//	}
 	
 	private WordData get(String word) {
 		return this.repo.findById(word).orElseGet(() -> getAndPersistWord(word));
@@ -83,10 +87,22 @@ public class WordController {
 		return this.repo.save(data);
 	}
 
-	private User extractUserDetails(Authentication auth) {
-		return (User) auth.getDetails();
+	private User extractUserDetails(Authentication auth) { //Authentication = KeycloakAuthenticationToken
+		AccessToken token = Optional.ofNullable(auth).map(a -> (KeycloakSecurityContext)a.getCredentials())
+				.map(KeycloakSecurityContext::getToken).orElseThrow();
+		return toUser(token);
 	}
 	
+	private User toUser(AccessToken token) {
+		String preferredUsername = token.getPreferredUsername();
+		User user = new User(preferredUsername); //custom user model
+		Set<Role> roles = token.getResourceAccess(token.getIssuedFor()).getRoles().stream()
+				.map(r -> new Role(r))
+				.collect(Collectors.toSet());
+		user.setAuthorities(roles);
+		return user;
+	}
+
 	@Data
 	@NoArgsConstructor
 	public static class ShareForm implements Serializable{
