@@ -61,13 +61,6 @@ public class WordController {
 		share(word, user);
 	}
 
-//	@PutMapping(path = "/{word}")
-//	@ResponseStatus(HttpStatus.OK)
-//	public WordData coShare(@PathVariable(name = "word") String word, Authentication auth) {
-//		User user = extractUserDetails(auth);
-//		return share(word, user);
-//	}
-	
 	private WordData get(String word) {
 		return this.repo.findById(word).orElseGet(() -> getAndPersistWord(word));
 	}

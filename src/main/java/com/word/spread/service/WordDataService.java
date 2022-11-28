@@ -39,7 +39,7 @@ public class WordDataService {
 		List<WordData> body = entity.getBody();
 		WordData wd = new WordData(word);
 
-		return body.stream().reduce(wd, (a, b) -> {
+		WordData response = body.stream().reduce(wd, (a, b) -> {
 			List<Mean> meanings = union(a.getMeanings(), b.getMeanings());
 			List<Phonetic> phonetics = union(a.getPhonetics(), b.getPhonetics());
 
@@ -54,6 +54,9 @@ public class WordDataService {
 			wd.setPhonetics(phonetics);
 			return wd;
 		});
+		
+		LOGGER.info("Fetched: " + word);
+		return response;
 	}
 
 	private <T> List<T> union(List<T> a, List<T> b) {

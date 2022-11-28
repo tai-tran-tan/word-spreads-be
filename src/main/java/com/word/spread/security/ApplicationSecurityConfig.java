@@ -1,5 +1,7 @@
 package com.word.spread.security;
 
+import java.util.Arrays;
+
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
@@ -16,6 +18,9 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @KeycloakConfiguration
 public class ApplicationSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
@@ -26,7 +31,6 @@ public class ApplicationSecurityConfig extends KeycloakWebSecurityConfigurerAdap
     	KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
     	SimpleAuthorityMapper grantedAuthorityMapper = new SimpleAuthorityMapper();
     	grantedAuthorityMapper.setPrefix("ROLE_");
-//         grantedAuthorityMapper.setConvertToUpperCase(true);
     	keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(grantedAuthorityMapper);
     	
     	return keycloakAuthenticationProvider;
@@ -50,6 +54,7 @@ public class ApplicationSecurityConfig extends KeycloakWebSecurityConfigurerAdap
     {
         super.configure(http);
         http
+        	.cors().and()
         	.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/words").hasRole("user")
@@ -67,70 +72,17 @@ public class ApplicationSecurityConfig extends KeycloakWebSecurityConfigurerAdap
         return new KeycloakSpringBootConfigResolver();
     }
 
-
-//	@Override
-//	protected void configure(HttpSecurity http) throws Exception {
-
-		
-//		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		
-//		Filter keycloakAuthenticationProcessingFilter = new KeycloakAuthenticationProcessingFilter(authenticationManager());
-//		http.addFilterAfter(keycloakAuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter.class);
-		
-//		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/users").permitAll();
-//		http
-//			.cors().disable()
-//			.csrf().disable()
-//			.authorizeRequests()
-//			.antMatchers(HttpMethod.GET, "/api/words").permitAll().antMatchers("/api/*")
-//			.hasAnyRole("user", "WEB_USER")
-//		.anyRequest().permitAll();
-		
-//		super.configure(http);
-//		http.oauth2Login().and().logout().addLogoutHandler(keycloakLogoutHandler).logoutSuccessUrl("/");
-//	}
-
 	// temporary disable cors
-//	@Bean
-//	CorsConfigurationSource corsConfigurationSource() {
-//		CorsConfiguration configuration = new CorsConfiguration();
-//		configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-//		configuration.setAllowedMethods(Arrays.asList("*"));
-//		configuration.setAllowCredentials(true);
-//		configuration.setAllowedHeaders(Arrays.asList("*"));
-//
-//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//		source.registerCorsConfiguration("/**", configuration);
-//		return source;
-//	}
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+		configuration.setAllowedMethods(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setAllowedHeaders(Arrays.asList("*"));
 
-//	@Bean
-//	public FilterRegistrationBean keycloakAuthenticationProcessingFilterRegistrationBean(
-//			KeycloakAuthenticationProcessingFilter filter) {
-//		FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
-//		registrationBean.setEnabled(false);
-//		return registrationBean;
-//	}
-//
-//	@Bean
-//	public FilterRegistrationBean keycloakPreAuthActionsFilterRegistrationBean(KeycloakPreAuthActionsFilter filter) {
-//		FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
-//		registrationBean.setEnabled(false);
-//		return registrationBean;
-//	}
-//
-//	@Bean
-//	public FilterRegistrationBean keycloakAuthenticatedActionsFilterBean(KeycloakAuthenticatedActionsFilter filter) {
-//		FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
-//		registrationBean.setEnabled(false);
-//		return registrationBean;
-//	}
-//
-//	@Bean
-//	public FilterRegistrationBean keycloakSecurityContextRequestFilterBean(
-//			KeycloakSecurityContextRequestFilter filter) {
-//		FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
-//		registrationBean.setEnabled(false);
-//		return registrationBean;
-//	}
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 }
